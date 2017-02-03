@@ -90,6 +90,7 @@ class TumblrDownload():
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
+	parser.add_argument('blog', required=True)
 	parser.add_argument('--path', '-p', action='store',
 											help='The root path that store all the files. eg. videos, audios, photos')
 	args = parser.parse_args()
