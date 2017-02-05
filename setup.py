@@ -12,13 +12,13 @@ from setuptools import setup
 setup(
 		name='tumblr-download',
 		packages=['tumblr-download'],
-		version='1.3',
+		version='1.5',
 		install_requires=['python-tumblpy>=1.0.5'],
 		description='Download posts from tumblr blog',
 		author='Zhang LongQi',
 		author_email='longqi90@gmail.com',
 		url='https://github.com/zhanglongqi/tumblr-download',
-		download_url='https://github.com/zhanglongqi/tumblr-download/tarball/v1.3',
+		download_url='https://github.com/zhanglongqi/tumblr-download/tarball/v1.5',
 		keywords=['tumblr', 'download', 'backup', 'copy'],
 		classifiers=[],
 )
