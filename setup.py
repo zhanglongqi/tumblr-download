@@ -10,15 +10,15 @@ Description:
 from setuptools import setup
 
 setup(
-		name='tumblr_download',
-		packages=['tumblr_download'],
-		version='1.2',
+		name='tumblr-download',
+		packages=['tumblr-download'],
+		version='1.3',
 		install_requires=['python-tumblpy>=1.0.5'],
 		description='Download posts from tumblr blog',
 		author='Zhang LongQi',
 		author_email='longqi90@gmail.com',
-		url='https://github.com/zhanglongqi/tumblr_download',
-		download_url='https://github.com/zhanglongqi/tumblr_download/tarball/v1.2',
+		url='https://github.com/zhanglongqi/tumblr-download',
+		download_url='https://github.com/zhanglongqi/tumblr-download/tarball/v1.3',
 		keywords=['tumblr', 'download', 'backup', 'copy'],
 		classifiers=[],
 )
