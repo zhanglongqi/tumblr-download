@@ -15,7 +15,7 @@ from pprint import pprint
 from urllib.parse import urlparse
 from urllib.request import urlretrieve
 
-from tumblr_api import Tumblpy2
+from .tumblr_api import Tumblpy2
 
 
 class TumblrDownload():
