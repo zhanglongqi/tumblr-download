@@ -15,7 +15,7 @@ from pprint import pprint
 from urllib.parse import urlparse
 from urllib.request import urlretrieve
 
-from .tumblr_api import Tumblpy2
+from tumblr_api import Tumblpy2
 
 
 class TumblrDownload():
@@ -50,7 +50,7 @@ class TumblrDownload():
 		ress = []
 
 		r = client.posts(blog_url, post_type=post_type, limit=1, offset=0)
-		print('You have', r['total_posts'], self.post_type, ' posts')
+		print(blog_url, 'have', r['total_posts'], self.post_type, 'posts')
 
 		ress.append(r)
 
@@ -73,7 +73,11 @@ class TumblrDownload():
 		for res in self.get_all_posts(self.client, self.blog_url, self.post_type):
 			for post in res['posts']:
 				if post['type'] == 'video':
-					url = post['video_url']
+
+					if 'video_url' in post and 'tumblr' == post['video_type']:
+						url = post['video_url']
+					else:
+						print('Can not download this post:', post['post_url'])
 				# todo support all the post types
 				else:
 					continue
