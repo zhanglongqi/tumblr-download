@@ -11,14 +11,14 @@ from itertools import count
 from multiprocessing.pool import Pool
 from os import mkdir
 from os.path import basename, join, exists
-from pprint import pprint
 from urllib.parse import urlparse
 from urllib.request import urlretrieve
+from bs4 import BeautifulSoup
 
 from tumblr_api import Tumblpy2
 
 
-class TumblrDownload():
+class TumblrDownload:
 	def __init__(self, blog_url, path=None, post_type=None):
 		self.downloader_pool = Pool(processes=5)  # use 5 processes to download the data
 		self.client = Tumblpy2(
@@ -36,8 +36,12 @@ class TumblrDownload():
 		self.post_type = post_type
 
 	@staticmethod
-	def retrieve_and_save(url, name, path=None):
-		filename = join(path, name) if path else name
+	def retrieve_and_save(d):
+		url = d.get('url', '')
+		filename = d.get('filename', '')
+		path = d.get('path', None)
+
+		filename = join(path, filename) if path else filename
 		if exists(filename):
 			return
 		print('Downloading: ', url)
@@ -72,21 +76,39 @@ class TumblrDownload():
 
 		for res in self.get_all_posts(self.client, self.blog_url, self.post_type):
 			for post in res['posts']:
-				if post['type'] == 'video':
-
-					if 'video_url' in post and 'tumblr' == post['video_type']:
-						url = post['video_url']
+				if post['type'] == 'video' and 'tumblr' == post['video_type']:
+					url = post.get('video_url', '')
+					if url:
+						download_list.append({'url'     : url,
+																	'filename': basename(urlparse(url).path),
+																	'path'    : self.blog_url})
 					else:
 						print('Can not download this post:', post['post_url'])
-				# todo support all the post types
+				elif post['type'] == 'photo':
+					for photo in post.get('photos', []):
+						url = photo.get('original_size', {}).get('url', '')
+						if url:
+							download_list.append({'url'     : url,
+																		'filename': basename(urlparse(url).path),
+																		'path'    : self.blog_url})
+						else:
+							print('Can not download this post:', post['post_url'])
+				elif post['type'] == 'audio':
+					pass
+				elif post['type'] == 'text':
+					body = post.get('body', '')
+					soup = BeautifulSoup(body, 'html.parser')
+					for img in soup.find_all('img'):
+						url = img.get('src', '')
+						if url:
+							download_list.append({'url'     : url,
+																		'filename': basename(urlparse(url).path),
+																		'path'    : self.blog_url})
 				else:
 					continue
 
-				filename = basename(urlparse(url).path)
-				download_list.append((url, filename, self.blog_url))
-
-		pprint(download_list)
-		self.downloader_pool.starmap(self.retrieve_and_save, download_list)
+		# pprint(download_list)
+		self.downloader_pool.map(self.retrieve_and_save, download_list)
 
 
 # blog_url = blog_url['user']['blogs'][0]['url']
@@ -103,12 +125,12 @@ if __name__ == '__main__':
 	parser.add_argument('blog')
 	parser.add_argument('--type', '-t', action='store',
 											help='The posts type you want to download:'
-													 'Text,Photo,Quote,Link,Chat, Audio, Video,Answer')
+													 'Text, Photo, Quote, Link, Chat, Audio, Video, Answer')
 	parser.add_argument('--path', '-p', action='store',
 											help='The directory that store all the files you download.')
 	args = parser.parse_args()
 	if str.lower(str(args.type)) not in ['text', 'photo', 'quote', 'link', 'chat', 'audio', 'video', 'answer']:
-		print('You can only select type in Text, Photo, Quote, Link, Chat, Audio, Video, Answer')
+		print('You have to select one type, such as Text, Photo, Quote, Link, Chat, Audio, Video, Answer')
 		exit(1)
 	loader = TumblrDownload(args.blog, path=args.path, post_type=args.type)
 	loader.to_download()
